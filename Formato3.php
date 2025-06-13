@@ -15,18 +15,15 @@ header('Content-Type: text/html; charset=UTF-8');
 //$id = '1';
 include_once('PDF.php');
 
-$sql = ("SELECT * FROM Empresa");
+$sql = "SELECT * FROM Empresa";
 $sentencia = $pdo->prepare($sql);
-$sentencia->fetchAll();
-//$sentencia->rowCount();
 $sentencia->execute();
 
 
 $pdf = new PDF();
-
-
-$res = $sentencia->fetchAll();
-for($i=0;$i<14;$i++){
+$empresas = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+foreach ($empresas as $empresa){
+    $i = $empresa['idEmpresa'];
     $query = "SELECT * FROM Empresa WHERE idEmpresa = $i";
     $resultado = $pdo->prepare($query);
     $resultado->execute();
@@ -39,6 +36,7 @@ $resultado2->execute();
 $query3 = "SELECT COUNT(*) FROM Proceso WHERE idEmpresa = $i";
 $resultado3 = $pdo->prepare($query3);
 $resultado3->execute();
+$totalProcesos = $resultado3->fetchColumn();
 
 //-----------------------Producto--------------------------
 $query4 = "SELECT * FROM Producto WHERE idEmpresa = $i";
@@ -46,8 +44,9 @@ $resultado4 = $pdo->prepare($query4);
 $resultado4->execute();
 
 $query5 = "SELECT COUNT(*) FROM Producto WHERE idEmpresa = $i";
-$resultado5 = $pdo->prepare($query5); 
+$resultado5 = $pdo->prepare($query5);
 $resultado5->execute();
+$totalProductos = $resultado5->fetchColumn();
 
 //-----------------------Cliente---------------------------
 $query6 = "SELECT * FROM Cliente WHERE idEmpresa = $i";
@@ -55,8 +54,9 @@ $resultado6 = $pdo->prepare($query6);
 $resultado6->execute();
 
 $query7 = "SELECT COUNT(*) FROM Cliente WHERE idEmpresa = $i";
-$resultado7 = $pdo->prepare($query7); 
+$resultado7 = $pdo->prepare($query7);
 $resultado7->execute();
+$totalClientes = $resultado7->fetchColumn();
 
 //-----------------------Certificación---------------------
 $query8 = "SELECT * FROM Certificacion WHERE idEmpresa = $i";
@@ -66,6 +66,7 @@ $resultado8->execute();
 $query9 = "SELECT COUNT(*) FROM Certificacion WHERE idEmpresa = $i";
 $resultado9 = $pdo->prepare($query9); 
 $resultado9->execute();
+$totalCertificaciones = $resultado9->fetchColumn();
 
 
 ////////IZQUIERDA////////
@@ -248,7 +249,7 @@ if($resultado){
             
         $pdf->Ln();
         while($fila = $resultado2->fetch(PDO::FETCH_ASSOC)){
-            for($j=1; $j <= $resultado3; $j++){
+            for($j=1; $j <= $totalProcesos; $j++){
                 if($posicion_MulticeldaIIX >= '200'){
 
                 //Cuadro que encapsula imagen
@@ -708,7 +709,7 @@ if($resultado){
 		        $pdf->Ln();
         while($fila = $resultado4->fetch(PDO::FETCH_ASSOC))
             {
-                for ($j=1; $j <= $resultado5 ; $j++) { //$resultado5
+                for ($j=1; $j <= $totalProductos ; $j++) {
 
              if($posicion_MulticeldaIIX >= '200' )
             {
@@ -977,7 +978,7 @@ if($resultado){
 		$pdf->Ln();
 while($fila = $resultado6->fetch(PDO::FETCH_ASSOC))
     {
-        for ($j=1; $j <= $resultado7 ; $j++) { //$resultado7
+        for ($j=1; $j <= $totalClientes ; $j++) {
 
              if($posicion_MulticeldaIIX >= '200' )
             {
@@ -1244,7 +1245,7 @@ while($fila = $resultado6->fetch(PDO::FETCH_ASSOC))
 
 		    $pdf->Ln();
     while($fila = $resultado8->fetch(PDO::FETCH_ASSOC)) {
-        for ($j=1; $j <= $resultado9 ; $j++) { //$resultado9
+        for ($j=1; $j <= $totalCertificaciones ; $j++) {
 
              if($posicion_MulticeldaIIX >= '200' )
             {
@@ -1377,7 +1378,7 @@ while($fila = $resultado6->fetch(PDO::FETCH_ASSOC))
             $pdf->SetXY($posicion_MulticeldaIFX, $posicion_MulticeldaIFY);
             $pdf->SetFont('TIMES','', 7);
             $pdf->MultiCell(40, 35,'', 1, 'J', false);
-            $pdf->Image('C:\xampp\htdocs\capacitycatalog_prueba_2\ImagenesEmpresas\Productos'.$fila['imagen'].'', $posicion_MulticeldaIIX, $posicion_MulticeldaIIY, 30, 30);
+            $pdf->Image('ImagenesEmpresas/Certificaciones/'.$fila['imagen'].'', $posicion_MulticeldaIIX, $posicion_MulticeldaIIY, 30, 30);
 
             $pdf->SetXY($posicion_MulticeldaITX, $posicion_MulticeldaITY);
 
@@ -1396,5 +1397,5 @@ while($fila = $resultado6->fetch(PDO::FETCH_ASSOC))
     }
 }
     //$pdf->Output('D','Prueba.pdf'); DESCARGA DIRECTA
-	$pdf->Output();
+$pdf->Output();
 ?>
